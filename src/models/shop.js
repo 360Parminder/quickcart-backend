@@ -1,25 +1,20 @@
 const mongoose = require("mongoose");
-const { default: accounts } = require("razorpay/dist/types/accounts");
+// import { default as accounts } from "razorpay/dist/types/accounts";
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const shopSchema = new Schema({
 
-  name: {
+  shopName: {
     type: String,
     required: true,
   },
   address: {
-    street: String,
-    city: String,
-    state: String,
-    zip: String,
-    country: String,
-    required: true,
-  },
-  phone: {
-    type: String,
-    required: true,
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    zip: { type: String, required: true },
+    country: { type: String, required: true },
   },
   email: {
     type: String,
@@ -42,12 +37,12 @@ const shopSchema = new Schema({
       ref: "Product",
     },
   ],
-  orders: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Order",
-    },
-  ],
+  // orders: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: "Order",
+  //   },
+  // ],
   status: {
     type: String,
     default: "active",
@@ -59,8 +54,12 @@ const shopSchema = new Schema({
       ref: "User",
     },
   ],
+  shopId: {
+    type: String,
+    required: true,
+  },
 });
 
-const Shop = mongoose.model("Shop", shopSchema);
+module.exports= mongoose.model("Shop", shopSchema);
 
-module.exports = Shop;
+

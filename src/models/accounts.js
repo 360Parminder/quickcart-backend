@@ -16,7 +16,18 @@ const accountSchema = new Schema({
     type: String,
     required: true,
   },
- 
+  // bankName: {
+  //   type: String,
+  //   required: true,
+  // },
+  // branch: {
+  //   type: String,
+  //   required: true,
+  // },
+  shopId:{
+    type:String,
+    required:true,
+  }
 });
 
 const Account = mongoose.model("Account", accountSchema);

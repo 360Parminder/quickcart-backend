@@ -3,8 +3,10 @@ const Account = require("../models/accounts");
 const Shop = require("../models/shop");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { generateShopeId } = require("../../utils/genrateShopeId");
 
 const signup = async (req) => {
+  
     try {
       const {
         shopName,
@@ -54,28 +56,40 @@ const signup = async (req) => {
       // Hash password and create new user
       const hashedPassword = await bcryptjs.hash(password, 12);
       const user = await User.create({
-          ownerName,
+          name:ownerName,
           mobile,
           role,
           password: hashedPassword,
+          shopId: generateShopeId(),
       });
+      if (!user) {
+        return { status: 500, message: "User creation failed" };
+      }
       const account = await Account.create({
         accountNumber,
         holderName,
         ifsc,
-        shopId: user._id, // create a shop id
+        shopId: user.shopId,
       });
+      if (!account) {
+        return { status: 500, message: "Account creation failed" };
+      }
       const shop = await Shop.create({
+        shopId: user.shopId,
         shopName,
         email,
-        street,
-        city,
-        state,
-        zip,
-        country,
+        address: {
+          street,
+          city,
+          state,
+          zip,
+          country,
+        },
         owner: user._id,
       });
-  
+      if (!shop) {
+        return { status: 500, message: "Shop creation failed" };
+      }
       return { status: 201, message: "User created successfully", user };
     } catch (error) {
       return { status: 500, message: error.message };
