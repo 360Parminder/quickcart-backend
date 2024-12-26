@@ -1,9 +1,16 @@
 const mongoose = require("mongoose");
-
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
+    employeeId: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: String,
+      default: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    },
     name: {
       type: String,
       required: true,
@@ -11,7 +18,6 @@ const userSchema = new Schema(
     mobile: {
       type: Number,
       required: true,
-      unique: true,
     },
     password: {
       type: String,
@@ -21,7 +27,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
       default: "user",
-      enum: ["user", "Owner", "Admin"],
+      enum: ["Employee","Delivery","ShopOwner","CounterEmployee","InventoryManager","Healer","HR"],
     },
     authKey:{
       type: String,

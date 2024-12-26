@@ -3,7 +3,7 @@ const Account = require("../models/accounts");
 const Shop = require("../models/shop");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { generateShopeId } = require("../../utils/genrateShopeId");
+const { generateShopeId, generateEmployeeId } = require("../../utils/genrateShopeId");
 
 const signup = async (req) => {
   
@@ -61,6 +61,7 @@ const signup = async (req) => {
           role,
           password: hashedPassword,
           shopId: generateShopeId(),
+          employeeId:generateEmployeeId(),
       });
       if (!user) {
         return { status: 500, message: "User creation failed" };
