@@ -10,7 +10,7 @@ const PaymentRouter = require("./payment");
 router.post("/registerShop", signupController);
 router.post("/login", loginController);
 router.use("/user", auth, userRouter);
-router.use("/Product", ProductRouter);
+router.use("/Product",auth, ProductRouter);
 router.use("/payment", PaymentRouter);
 
 

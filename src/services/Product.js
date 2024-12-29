@@ -1,52 +1,50 @@
+const { default: uploadImage } = require('../../utils/cloudinary');
 const Product  = require('../models/products');
 
 
 const addProduct = async (req) => {
-    console.log(req.body);
-    
-    const { name, price, quantity, unit, shopId,image,quantityInStock } = req.body;
+    const { name, price, quantity, unit, quantityInStock } = req.body;
 
-    // Validate input (if not using a middleware)
-    if (!name || !price || !quantity || !unit || !shopId) {
+    // Validate required fields
+    if (!name || !price || !quantity || !unit || !quantityInStock || !req.file) {
         return {
             status: 400,
-            message: 'All fields are required',
+            message: "All fields are required",
         };
     }
 
     try {
-        // Sanitize input (you might want to add additional checks here)
-        const sanitizedName = name.trim();
-        const sanitizedUnit = unit.trim();
-
+        // Upload the image to Cloudinary
+        const { path: filePath, originalname: fileName } = req.file;
+        const uploadResult = await uploadImage(filePath, fileName);
+        // Save product details, including the uploaded image URL
         const newProduct = await Product.create({
-            name: sanitizedName,
+            name: name.trim(),
             price: parseFloat(price),
             quantity: parseInt(quantity, 10),
-            unit: sanitizedUnit,
-            shopId: shopId.trim(),
-            image:image,
+            unit: unit.trim(),
+            shopId: req.user.shopId.trim(),
+            image: uploadResult.url, // Save the Cloudinary URL to the database
             quantityInStock: parseInt(quantityInStock, 10),
-            
         });
 
         return {
             status: 201,
-            message: 'Product added successfully',
             product: newProduct,
+            message: "Product added successfully",
         };
     } catch (error) {
-        console.error('Error adding product:', error);
-
+        console.error("Error adding product:", error);
         return {
             status: 500,
-            message: error.message || 'Internal Server Error',
+            message: error.message || "Internal Server Error",
         };
     }
 };
+
 const allProducts = async (req) => {
     try {
-        const products = await Product.find(req.params.shopId ? { shopId: req.params.shopId } : {});
+        const products = await Product.find(req.user.shopId ? { shopId:req.user.shopId } : {});
         return {
             status: 200,
             products,

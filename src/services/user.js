@@ -1,4 +1,5 @@
 const { generateEmployeeId } = require("../../utils/genrateShopeId");
+const Shop = require("../models/shop");
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 
@@ -27,12 +28,12 @@ const getMe = async (req) => {
 };
 
 const registerEmployee = async (req) => {
-  const { name, email, password, role, mobile, shopId } = req.body;
-
+  const { firstname, lastname, email, password, role, mobile } = req.body;
+  const shopId = req.user.shopId;
   try {
     // Check if a user with the same mobile number already exists
     const userExists = await User.findOne({ mobile });
-    
+
     if (userExists && userExists.shopId === shopId) {
       return {
         status: 400,
@@ -44,7 +45,8 @@ const registerEmployee = async (req) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name,
+      firstName: firstname,
+      lastName: lastname,
       email,
       password: hashedPassword,
       role,
@@ -64,7 +66,8 @@ const registerEmployee = async (req) => {
       status: 200,
       message: "User created successfully",
       user: {
-        name: user.name,
+        firstname: user.firstName,
+        lastname: user.lastName,
         email: user.email,
         role: user.role,
         mobile: user.mobile,
@@ -80,8 +83,57 @@ const registerEmployee = async (req) => {
     };
   }
 };
+const getAllEmployees = async (req) => {
+  try {
+    const employees = await User.find({ shopId: req.user.shopId });
+    if (!employees) {
+      return {
+        status: 404,
+        message: "Employees not found",
+      };
+    }
+
+    return {
+      status: 200,
+      message: "Employees fetched successfully",
+      employees: employees,
+    };
+  } catch (error) {
+    console.error("Error fetching employees: ", error);
+    return {
+      status: 500,
+      message: error?error.message:"Server error, please try again later.",
+    };
+  }
+};
+const getShop = async (req) => {
+  try {
+    const shop = await Shop.find({shopId:req.user.shopId});
+    if (!shop) {
+      return {
+        status: 404,
+        message: "Shop not found",
+      };
+    }
+
+    return {
+      status: 200,
+      message: "Shop fetched successfully",
+      shop: shop,
+    };
+  } catch (error) {
+    console.error("Error fetching shop: ", error);
+    return {
+      status: 500,
+      message: "Server error, please try again later.",
+    };
+  }
+};
+
 
 module.exports = {
   getMe,
   registerEmployee,
+  getAllEmployees,
+  getShop,
 };

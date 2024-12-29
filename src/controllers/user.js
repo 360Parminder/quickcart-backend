@@ -1,6 +1,8 @@
 const {
     getMe,
-    registerEmployee
+    registerEmployee,
+    getShop,
+    getAllEmployees
 
 } = require("../services/user.js");
 
@@ -26,8 +28,32 @@ const getMeController = async (req, res) => {
       return res.status(500).json({ message: error.message });
     }
   };
+  const GetAllEmployees = async(req,res)=>{
+    try {
+      const response = await getAllEmployees(req);
+      return res.status(response.status).json({
+        message: response.message,
+        employees: response.employees || null,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  };
+  const GetShop = async(req,res)=>{
+    try {
+      const response = await getShop(req);
+      return res.status(response.status).json({
+        message: response.message,
+        shop: response.shop || null,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
 
 module.exports = {
     getMeController,
-    RegisterEmployee
+    RegisterEmployee,
+    GetAllEmployees,
+    GetShop
 };

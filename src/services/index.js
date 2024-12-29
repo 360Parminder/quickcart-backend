@@ -10,7 +10,8 @@ const signup = async (req) => {
     try {
       const {
         shopName,
-        ownerName,
+        ownerFirstName,
+        ownerLastName,
         email,
         accountNumber,
         holderName,
@@ -25,10 +26,13 @@ const signup = async (req) => {
         password,
 
       } = req.body;
+      console.log(req.body);
+      
   
       // Validate required fields
       if (
-        !ownerName ||
+        !ownerFirstName ||
+        !ownerLastName ||
         !mobile ||
         !password ||
         !role||
@@ -56,7 +60,8 @@ const signup = async (req) => {
       // Hash password and create new user
       const hashedPassword = await bcryptjs.hash(password, 12);
       const user = await User.create({
-          name:ownerName,
+          firstName:ownerFirstName,
+          lastName:ownerLastName,
           mobile,
           role,
           password: hashedPassword,
@@ -77,6 +82,7 @@ const signup = async (req) => {
       }
       const shop = await Shop.create({
         shopId: user.shopId,
+        
         shopName,
         email,
         address: {
@@ -86,7 +92,7 @@ const signup = async (req) => {
           zip,
           country,
         },
-        owner: user._id,
+        owner: user.firstName+" "+user.lastName,
       });
       if (!shop) {
         return { status: 500, message: "Shop creation failed" };
@@ -119,7 +125,7 @@ const signup = async (req) => {
       }
   
       // Generate JWT token
-      const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
+      const token = jwt.sign({ id: user._id,shopId:user.shopId }, process.env.SECRET_KEY, {
         expiresIn: "7d",
       });
   
