@@ -52,9 +52,8 @@ const generatePayment = async (req) => {
 };
 
 const getAllPayments = async (req) => {
-    const shopId = req.params.shopId;
     try {
-        const payments = await Payment.find( shopId);
+        const payments = await Payment.find({shopId: req.user.shopId});
         if (!payments) {
             return {
                 status: 400,
