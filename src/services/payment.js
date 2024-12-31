@@ -2,45 +2,55 @@
 const Payment = require("../models/payment");
 
 const generatePayment = async (req) => {
-    const { amount, customerName, shopId, paymentMethod, mobile, items } = req.body;
+    const { amount, customerName, paymentMethod, mobile, items, razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
 
-    if (!amount || !customerName || !shopId || !paymentMethod || !mobile) {
+    if (!amount || !customerName || !paymentMethod || !mobile) {
         return {
             status: 400,
             message: "All fields are required"
-        }
+        };
     }
+
     try {
-        const payment = await Payment.create({
+        const paymentData = {
             amount,
             customerName,
-            shopId,
+            shopId: req.user.shopId,
             paymentMethod,
             mobile,
-            items,
+            items
+        };
 
-        });
+        // Add Razorpay details if payment method is 'online'
+        if (paymentMethod === 'online') {
+            paymentData.razorpayOrderId = razorpayOrderId;
+            paymentData.razorpayPaymentId = razorpayPaymentId;
+            paymentData.razorpaySignature = razorpaySignature;
+        }
+
+        const payment = await Payment.create(paymentData);
+
         if (!payment) {
             return {
                 status: 400,
                 message: "Payment not generated"
-            }
+            };
         }
+
         return {
             status: 200,
             message: "Payment generated successfully",
             payment: payment
-        }
+        };
 
     } catch (error) {
-
         return {
             status: 500,
-            messagee: error ? error?.message : "Internal server error"
-        }
+            message: error ? error.message : "Internal server error"
+        };
     }
-
 };
+
 const getAllPayments = async (req) => {
     const shopId = req.params.shopId;
     try {

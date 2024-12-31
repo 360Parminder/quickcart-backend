@@ -37,7 +37,22 @@ const paymentSchema = new Schema(
                 },
             },
         ],
+        razorpayPaymentId:{
+            type: String,
+        },
+        razorpayOrderId:{
+            type: String,
+        },
+        razorpaySignature:{
+            type: String,
+        },
+        status: {
+            type: String,
+            default: 'pending',
+            enum: ['pending', 'completed'],
+        },
     },
+   
     {
         timestamps: true, // Automatically adds createdAt and updatedAt fields
     }
