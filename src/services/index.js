@@ -7,6 +7,7 @@ const { generateShopeId, generateEmployeeId } = require("../../utils/genrateShop
 
 const signup = async (req) => {
   
+  
     try {
       const {
         shopName,

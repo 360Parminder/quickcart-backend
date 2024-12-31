@@ -1,4 +1,5 @@
 const { default: uploadImage } = require('../../utils/cloudinary');
+const { genrateProductId } = require('../../utils/genrateShopeId');
 const Product  = require('../models/products');
 
 
@@ -26,6 +27,7 @@ const addProduct = async (req) => {
             shopId: req.user.shopId.trim(),
             image: uploadResult.url, // Save the Cloudinary URL to the database
             quantityInStock: parseInt(quantityInStock, 10),
+            productId:genrateProductId(),
         });
 
         return {
