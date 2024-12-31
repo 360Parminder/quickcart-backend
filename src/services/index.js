@@ -64,6 +64,7 @@ const signup = async (req) => {
           lastName:ownerLastName,
           mobile,
           role,
+          email,
           password: hashedPassword,
           shopId: generateShopeId(),
           employeeId:generateEmployeeId(),
@@ -115,7 +116,7 @@ const signup = async (req) => {
       // Find user by mobile
       const user = await User.findOne({ mobile });
       if (!user) {
-        return { status: 404, message: "User not found" };
+        return { status: 404, message: "Not a Registered " };
       }
   
       // Validate password
