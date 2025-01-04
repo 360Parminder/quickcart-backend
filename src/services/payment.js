@@ -1,4 +1,5 @@
 
+const { default: axios } = require("axios");
 const Payment = require("../models/payment");
 
 const generatePayment = async (req) => {
@@ -72,8 +73,47 @@ const getAllPayments = async (req) => {
         }
     }
 }
+const generateOrderId =async(req)=>{
+    const { amount,receiptId } = req.body;
+    try {
+        const response = await axios.post(
+          'https://api.razorpay.com/v1/orders',
+          {
+            "amount": amount * 100, // Amount in subunits (e.g., 10000 paise for INR 100)
+            "currency": "INR",
+            "receipt": receiptId,
+          },
+          {
+            auth: {
+              username: process.env.RAZORPAY_KEY, // Replace with your Razorpay Test Key
+              password: process.env.RAZORPAY_SECRET, // Replace with your Razorpay Test Secret
+            },
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+    
+        // Return the receipt ID and the order ID returned by the Razorpay API
+        console.log('Order created:', response.data);
+        
+        return {
+            receiptId: response.data.receipt,
+            orderId: response.data.id,
+            success: true,
+            status: 200,
+            message: "Order created successfully"
+         };
+      } catch (error) {
+        console.log(error);
+        
+        console.error('Error creating order:', error.response ? error.response.data : error.message);
+        return { error: "Failed to create the order." };
+      }
+}
 
 module.exports = {
     generatePayment,
-    getAllPayments
+    getAllPayments,
+    generateOrderId
 };

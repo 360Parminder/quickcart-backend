@@ -1,4 +1,4 @@
-const { generatePayment, getAllPayments } = require("../services/payment");
+const { generatePayment, getAllPayments, generateOrderId } = require("../services/payment");
 
 
 const GeneratePayment = async (req, res) => {
@@ -23,8 +23,20 @@ const GetAllPayments = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 }
+const GenerateOrderId =async (req, res) => {
+    try {
+        const response = await generateOrderId(req);
+        return res.status(response.status).json({
+            message: response.message,
+            orderId: response.orderId || null,
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
 
 module.exports = {
     GeneratePayment,
-    GetAllPayments
+    GetAllPayments,
+    GenerateOrderId
 }
