@@ -11,7 +11,7 @@ router.post("/registerShop", signupController);
 router.post("/login", loginController);
 router.use("/user", auth, userRouter);
 router.use("/Product",auth, ProductRouter);
-router.use("/payment", PaymentRouter);
+router.use("/payment",auth, PaymentRouter);
 
 
 module.exports = router;

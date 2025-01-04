@@ -3,7 +3,7 @@ const { default: axios } = require("axios");
 const Payment = require("../models/payment");
 
 const generatePayment = async (req) => {
-    const { amount, customerName, paymentMethod, mobile, items, razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+    const { amount, customerName, paymentMethod, mobile, items, razorpayOrderId, razorpayPaymentId, razorpaySignature,receiptId } = req.body;
 
     if (!amount || !customerName || !paymentMethod || !mobile) {
         return {
@@ -14,6 +14,7 @@ const generatePayment = async (req) => {
 
     try {
         const paymentData = {
+            receiptId,
             amount,
             customerName,
             shopId: req.user.shopId,

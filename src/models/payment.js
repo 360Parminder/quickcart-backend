@@ -4,6 +4,10 @@ const Schema = mongoose.Schema;
 
 const paymentSchema = new Schema(
     {
+        receiptId: {
+            type: String,
+            required: true,
+        },
         shopId: {
             type: String,
             required: true,
@@ -49,7 +53,7 @@ const paymentSchema = new Schema(
         status: {
             type: String,
             default: 'pending',
-            enum: ['pending', 'completed'],
+            enum: ['pending', 'completed','Paid'],
         },
     },
    
