@@ -29,6 +29,10 @@ const paymentSchema = new Schema(
             type: String,
             required: true,
         },
+        email: {
+            type: String,
+            required: true,
+        },
         items: [
             {
                 productId: {

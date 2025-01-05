@@ -1,9 +1,12 @@
 
 const { default: axios } = require("axios");
 const Payment = require("../models/payment");
+const { createBillPDF } = require("../../utils/pdfgenerate");
+const { sendEmail } = require("../../utils/nodemailer");
+
 
 const generatePayment = async (req) => {
-    const { amount, customerName, paymentMethod, mobile, items, razorpayOrderId, razorpayPaymentId, razorpaySignature,receiptId,status } = req.body;
+    const { amount, customerName, paymentMethod, mobile,email, items, razorpayOrderId, razorpayPaymentId, razorpaySignature,receiptId,status } = req.body;
 
     if (!amount || !customerName || !paymentMethod || !mobile) {
         return {
@@ -20,6 +23,7 @@ const generatePayment = async (req) => {
             shopId: req.user.shopId,
             paymentMethod,
             mobile,
+            email,
             items,
             status
         };
@@ -39,6 +43,26 @@ const generatePayment = async (req) => {
                 message: "Payment not generated"
             };
         }
+        const billDetails = {
+            shopName: 'Super Mart',
+            gstNumber: '29ABCDE1234FZ1',
+            contactDetails: '+91 9876543210',
+            ownerName: 'John Doe',
+            createdBy: 'Jane Smith',
+            billDate: new Date().toLocaleDateString(),
+            products: [
+                { name: 'Milk', price: 50, quantity: 2 },
+                { name: 'Bread', price: 30, quantity: 1 },
+                { name: 'Butter', price: 150, quantity: 1 },
+            ],
+            totalAmount: 280, // Sum of all product totals
+        };
+       const billPdf= await createBillPDF(billDetails);
+       console.log(billPdf);
+       const billMail = await sendEmail(email,billPdf);
+       console.log(billMail);
+       
+       
 
         return {
             status: 200,
@@ -47,6 +71,8 @@ const generatePayment = async (req) => {
         };
 
     } catch (error) {
+        console.log(error);
+        
         return {
             status: 500,
             message: error ? error.message : "Internal server error"
