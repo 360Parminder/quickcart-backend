@@ -4,6 +4,8 @@ import fs from 'fs';
 import path from 'path';
 
 export async function createBillPDF(billDetails) {
+    console.log(billDetails);
+    
     const pdfDoc = await PDFDocument.create();
     
     // Register fontkit

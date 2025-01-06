@@ -4,15 +4,28 @@ const Payment = require("../models/payment");
 const { createBillPDF } = require("../../utils/pdfgenerate");
 const { sendEmail } = require("../../utils/nodemailer");
 const { sendSMS } = require("../../utils/twillo");
+const Shop = require("../models/shop");
 
 
 const generatePayment = async (req) => {
-    const { amount, customerName, paymentMethod, mobile,email, items, razorpayOrderId, razorpayPaymentId, razorpaySignature,receiptId,status } = req.body;
+    const {
+        amount,
+        customerName,
+        paymentMethod,
+        mobile,
+        email,
+        items,
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature,
+        receiptId,
+        status
+    } = req.body;
 
     if (!amount || !customerName || !paymentMethod || !mobile) {
         return {
             status: 400,
-            message: "All fields are required"
+            message: "All required fields (amount, customerName, paymentMethod, mobile) must be provided."
         };
     }
 
@@ -21,7 +34,7 @@ const generatePayment = async (req) => {
             receiptId,
             amount,
             customerName,
-            shopId: req.user.shopId,
+            shopId: req.user?.shopId || null,
             paymentMethod,
             mobile,
             email,
@@ -31,57 +44,84 @@ const generatePayment = async (req) => {
 
         // Add Razorpay details if payment method is 'online'
         if (paymentMethod === 'online') {
+            if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+                return {
+                    status: 400,
+                    message: "Razorpay details are required for online payments."
+                };
+            }
             paymentData.razorpayOrderId = razorpayOrderId;
             paymentData.razorpayPaymentId = razorpayPaymentId;
             paymentData.razorpaySignature = razorpaySignature;
         }
 
         const payment = await Payment.create(paymentData);
-
         if (!payment) {
             return {
                 status: 400,
-                message: "Payment not generated"
+                message: "Failed to create payment record."
             };
         }
+
+        console.log("Shop ID:", req.user?.shopId);
+
+        const shopDetails = await Shop.findOne({ shopId: req.user?.shopId });
+        if (!shopDetails) {
+            return {
+                status: 404,
+                message: "Shop details not found."
+            };
+        }
+
         const billDetails = {
-            shopName: 'Super Mart',
-            gstNumber: '29ABCDE1234FZ1',
-            contactDetails: '+91 9876543210',
-            ownerName: 'John Doe',
-            createdBy: 'Jane Smith',
+            shopName: shopDetails.shopName,
+            gstNumber: shopDetails.gstNumber,
+            contactDetails: shopDetails.email,
+            ownerName: shopDetails.owner,
+            createdBy: req.user?.name || "Admin",
             billDate: new Date().toLocaleDateString(),
-            products: [
-                { name: 'Milk', price: 50, quantity: 2 },
-                { name: 'Bread', price: 30, quantity: 1 },
-                { name: 'Butter', price: 150, quantity: 1 },
-            ],
-            totalAmount: 280, // Sum of all product totals
+            products: items,
+            totalAmount: amount,
         };
-       const billPdf= await createBillPDF(billDetails);
-       console.log(billPdf);
-       const billMail = await sendEmail(email,billPdf);
-       console.log(billMail);
-       const billPhone = await sendSMS(mobile,billPdf);
-         console.log(billPhone);
-       
-       
+
+        const billPdf = await createBillPDF(billDetails);
+        if (!billPdf) {
+            return {
+                status: 500,
+                message: "Failed to generate bill PDF."
+            };
+        }
+
+        if (email) {
+            try {
+                await sendEmail(email, billPdf);
+                console.log("Email sent successfully.");
+            } catch (emailError) {
+                console.error("Failed to send email:", emailError.message);
+            }
+        }
+
+        try {
+            const smsResponse = await sendSMS(mobile, billPdf);
+            console.log("SMS sent successfully:", smsResponse);
+        } catch (smsError) {
+            console.error("Failed to send SMS:", smsError.message);
+        }
 
         return {
             status: 200,
-            message: "Payment generated successfully",
-            payment: payment
+            message: "Payment generated successfully.",
+            payment
         };
-
     } catch (error) {
-        console.log(error);
-        
+        console.error("Error generating payment:", error.message);
         return {
             status: 500,
-            message: error ? error.message : "Internal server error"
+            message: "An internal server error occurred. Please try again later."
         };
     }
 };
+
 
 const getAllPayments = async (req) => {
     try {

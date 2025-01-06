@@ -43,6 +43,10 @@ const shopSchema = new Schema({
   //     ref: "Order",
   //   },
   // ],
+  gstNumber: {
+    type: String,
+    // required: true,
+  },
   status: {
     type: String,
     default: "active",
