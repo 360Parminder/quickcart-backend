@@ -3,6 +3,7 @@ const { default: axios } = require("axios");
 const Payment = require("../models/payment");
 const { createBillPDF } = require("../../utils/pdfgenerate");
 const { sendEmail } = require("../../utils/nodemailer");
+const { sendSMS } = require("../../utils/twillo");
 
 
 const generatePayment = async (req) => {
@@ -61,6 +62,8 @@ const generatePayment = async (req) => {
        console.log(billPdf);
        const billMail = await sendEmail(email,billPdf);
        console.log(billMail);
+       const billPhone = await sendSMS(mobile,billPdf);
+         console.log(billPhone);
        
        
 
