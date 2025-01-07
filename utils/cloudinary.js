@@ -7,7 +7,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET // Make sure this is correctly set in the environment variables
 });
 
-const uploadImage = async (filePath, fileName) => {
+export const uploadImage = async (filePath, fileName) => {
     console.log('Uploading image:', fileName, filePath);
     try {
         if (!filePath || !fileName) {
@@ -33,4 +33,19 @@ const uploadImage = async (filePath, fileName) => {
     }
 };
 
-export default uploadImage;
+export async function uploadToCloudinary(filePath) {
+    try {
+        const result = await cloudinary.uploader.upload(filePath, {
+            resource_type: 'raw', // Use 'raw' for non-media files like PDFs
+            folder: 'bills',      // Optional: Specify a folder in Cloudinary
+        });
+
+        console.log('Upload Successful:', result);
+        return result.secure_url; // The publicly accessible URL
+    } catch (error) {
+        console.error('Cloudinary Upload Error:', error);
+        throw error;
+    }
+}
+
+
