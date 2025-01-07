@@ -21,20 +21,20 @@ async function auth(req, res, next) {
 
     const jwtPassword = process.env.SECRET_KEY;
     const decode = jwt.verify(token, jwtPassword);
-    console.log("Decoded Token:", decode);
+    // console.log("Decoded Token:", decode);
     
-    console.log("Decoded Token");
+    // console.log("Decoded Token");
 
     const user = await User.findById(decode.id).select("-password -authKey");
     if (!user) {
       return res.status(403).json({ message: "User not found" });
     }
 
-    console.log("Authenticated User");
+    // console.log("Authenticated User");
     req.user = user; // Attach user to the request
     next();
   } catch (error) {
-    console.error("Authentication Error:", error.message);
+    // console.error("Authentication Error:", error.message);
     return res.status(500).json({
       message: error.message || "Internal server error",
       success: false,

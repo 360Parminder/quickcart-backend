@@ -28,8 +28,7 @@ export const uploadImage = async (filePath, fileName) => {
             public_id: uploadResult.public_id,
         };
     } catch (error) {
-        console.error('Error uploading image:', error);
-        throw error;
+       return error;
     }
 };
 
@@ -38,13 +37,12 @@ export async function uploadToCloudinary(filePath) {
         const result = await cloudinary.uploader.upload(filePath, {
             resource_type: 'raw', // Use 'raw' for non-media files like PDFs
             folder: 'bills',      // Optional: Specify a folder in Cloudinary
+            flags: 'attachment',  // Optional: Add the 'attachment' flag for content disposition
         });
-
-        console.log('Upload Successful:', result);
+        // console.log('Upload Successful:', result);
         return result.secure_url; // The publicly accessible URL
     } catch (error) {
-        console.error('Cloudinary Upload Error:', error);
-        throw error;
+       return error;
     }
 }
 

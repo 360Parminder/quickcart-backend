@@ -1,9 +1,9 @@
 import nodemailer from 'nodemailer';
-
-export async function sendEmail(recipientEmail, downloadLink) {
+export async function sendEmail(recipientEmail, downloadLink, shopName) {
+    // console.log('Sending email to:', recipientEmail);
+    
     const transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
+        service: 'gmail',
         auth: {
             user: process.env.EMAIL,
             pass: process.env.PASSWORD,
@@ -13,10 +13,12 @@ export async function sendEmail(recipientEmail, downloadLink) {
     const mailOptions = {
         from: process.env.EMAIL,
         to: recipientEmail,
-        subject: 'Your PDF is ready',
-        text: `Here is your downloadable PDF: ${downloadLink}`,
+        subject: `Download your Bill from the Store ${shopName}`,
+        text: `Here is your downloadable Bill: ${downloadLink}`,
     };
 
   const response=  await transporter.sendMail(mailOptions);
+  console.log('Email sent:', response);
+  
     return response;
 }

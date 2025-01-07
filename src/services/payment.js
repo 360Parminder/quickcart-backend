@@ -5,6 +5,7 @@ const { createBillPDF } = require("../../utils/pdfgenerate");
 const { sendEmail } = require("../../utils/nodemailer");
 const { sendSMS } = require("../../utils/twillo");
 const Shop = require("../models/shop");
+const { uploadToCloudinary } = require("../../utils/cloudinary");
 
 
 const generatePayment = async (req) => {
@@ -22,7 +23,7 @@ const generatePayment = async (req) => {
         status
     } = req.body;
 
-    if (!amount || !customerName || !paymentMethod || !mobile) {
+    if (!amount || !customerName || !paymentMethod || !mobile || !items || !status) {
         return {
             status: 400,
             message: "All required fields (amount, customerName, paymentMethod, mobile) must be provided."
@@ -91,22 +92,22 @@ const generatePayment = async (req) => {
                 message: "Failed to generate bill PDF."
             };
         }
-
+        const billUrl = await uploadToCloudinary(billPdf);
         if (email) {
             try {
-                await sendEmail(email, billPdf);
+                await sendEmail(email, billUrl, shopDetails.shopName);
                 console.log("Email sent successfully.");
             } catch (emailError) {
                 console.error("Failed to send email:", emailError.message);
             }
         }
 
-        try {
-            const smsResponse = await sendSMS(mobile, billPdf);
-            console.log("SMS sent successfully:", smsResponse);
-        } catch (smsError) {
-            console.error("Failed to send SMS:", smsError.message);
-        }
+        // try {
+        //     const smsResponse = await sendSMS(mobile, billUrl);
+        //     console.log("SMS sent successfully:", smsResponse);
+        // } catch (smsError) {
+        //     console.error("Failed to send SMS:", smsError.message);
+        // }
 
         return {
             status: 200,
