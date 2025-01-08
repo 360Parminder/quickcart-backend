@@ -26,6 +26,8 @@ async function auth(req, res, next) {
     // console.log("Decoded Token");
 
     const user = await User.findById(decode.id).select("-password -authKey");
+    console.log("User:", user);
+    
     if (!user) {
       return res.status(403).json({ message: "User not found" });
     }

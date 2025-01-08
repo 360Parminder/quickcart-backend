@@ -77,9 +77,9 @@ const generatePayment = async (req) => {
         const billDetails = {
             shopName: shopDetails.shopName,
             gstNumber: shopDetails.gstNumber,
-            contactDetails: shopDetails.email,
+            contactDetails: req.user?.mobile || shopDetails.email,
             ownerName: shopDetails.owner,
-            createdBy: req.user?.name || "Admin",
+            createdBy: req.user?.firstName +" "+ req.user.lastName || "Company",
             billDate: new Date().toLocaleDateString(),
             products: items,
             totalAmount: amount,
