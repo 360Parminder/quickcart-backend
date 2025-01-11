@@ -1,4 +1,5 @@
-const { default: uploadImage } = require('../../utils/cloudinary');
+
+const { uploadImage } = require('../../utils/cloudinary');
 const { genrateProductId } = require('../../utils/genrateShopeId');
 const Product  = require('../models/products');
 
